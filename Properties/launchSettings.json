@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "BMP2HUB75": {
+      "commandName": "Project",
+      "commandLineArgs": "\"F:\\Lenny\\Downloads\\ZeldaBOTW32x64_16.bmp\""
+    }
+  }
+}
