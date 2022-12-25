@@ -22,9 +22,14 @@ namespace BMP2HUB75
             var image = new Bitmap.Bitmap(imageData);
 
             StringBuilder sb = new StringBuilder();
-            foreach (var point in image.data)
+            foreach (var point in image.imageData)
             {
-                //todo create initializer for 2 bit image buffer or more bit buffer using sram at some point
+                //todo create initializer for 1 and 2 bit image buffer or more bit buffer using sram at some point
+                sb.Append("const LED[");
+                sb.Append(image.info.biHeight * image.info.biWidth / 8); //8 led per led struct
+                sb.Append("] image = {");
+
+                //todo do bit reduction using the percentage of image, so value between highest and lowest value in image so that most contrast and imageData is kept
             }
         }
 

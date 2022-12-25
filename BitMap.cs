@@ -31,7 +31,7 @@
         public BITMAPINFOHEADER info;
         public byte[] colorMasks = Array.Empty<byte>();
         public uint[] colorTable = Array.Empty<uint>();
-        public byte[] data = Array.Empty<byte>();
+        public byte[] imageData = Array.Empty<byte>();
 
         public Bitmap(byte[] data)
         {
@@ -45,7 +45,7 @@
             i += 4;
             header.bfOffset = (uint)(data[++i] + (data[++i] << 8) + (data[++i] << 16) + (data[++i] << 24));
 
-            //image data header setup
+            //image imageData header setup
             info.biSize = (uint)(data[++i] + (data[++i] << 8) + (data[++i] << 16) + (data[++i] << 24));
             info.biWidth = data[++i] + (data[++i] << 8) + (data[++i] << 16) + (data[++i] << 24);
             info.biHeight = data[++i] + (data[++i] << 8) + (data[++i] << 16) + (data[++i] << 24);
@@ -86,13 +86,13 @@
 
             if ((i + 1) == header.bfOffset) Console.WriteLine("Image headers read in correctly");
 
-            data = new byte[info.biSizeImage];
+            imageData = new byte[info.biSizeImage];
             for (int t = 0; t < info.biSizeImage; t++)
             {
-                data[t] = data[++i];
+                imageData[t] = data[++i];
             }
 
-            Console.WriteLine("Image data read in");
+            Console.WriteLine("Image imageData read in");
         }
     }
 }
