@@ -4,6 +4,25 @@ namespace BMP2HUB75
 {
     internal class Program
     {
+        private static readonly byte[] rgb8to4LUT = new byte[256] {
+            0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3,
+            3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+            3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4,
+            4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
+            5, 5, 5, 5, 5, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6,
+            6, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+            7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
+            8, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9,
+            9, 9, 9, 9, 9, 9, 9, 10, 10, 10, 10, 10, 10, 10, 10, 10,
+            10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 11,
+            11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 12,
+            12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12,
+            12, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14,
+            14, 14, 14, 14, 14, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15, 15
+        };
+
         static void Main(string[] args)
         {
             if (args.Length <= 0)
@@ -22,16 +41,67 @@ namespace BMP2HUB75
             var image = new Bitmap.Bitmap(imageData);
 
             StringBuilder sb = new StringBuilder();
-            foreach (var point in image.imageData)
-            {
-                //todo create initializer for 1 and 2 bit image buffer or more bit buffer using sram at some point
-                sb.Append("const LED[");
-                sb.Append(image.info.biHeight * image.info.biWidth / 8); //8 led per led struct
-                sb.Append("] image = {");
 
-                //todo do bit reduction using the percentage of image, so value between highest and lowest value in image so that most contrast and imageData is kept
+            //todo create initializer for 1 and 2 bit image buffer or more bit buffer using sram at some point
+            //todo do bit reduction using the percentage of image, so value between highest and lowest value in image so that most contrast and imageData is kept (if applicable)
+
+            //**this is for 4 bit flash mode, so bibitcount >= 12**
+            sb.Append("const unsigned char buffer[");
+            sb.Append(image.info.biHeight * image.info.biWidth * 2); //8 led per led struct
+            sb.Append("] PROGMEM = {");
+
+            int pixelsSet = 0;
+
+            for (int i = 0; i < 4; i++)
+            {
+                sb.Append('\n');
+                if (image.info.biBitCount == 8)
+                {
+                    for (int index = 0; index < image.imageData.Length / 2; index++)
+                    {
+                        int redUpper = (int)((RGB888To444(image.colorTable[image.imageData[index]]) & (1 << 3 - i + 8)) >> 3 - i + 8);
+                        int greenUpper = (int)((RGB888To444(image.colorTable[image.imageData[index]]) & (1 << 3 - i + 4)) >> 3 - i + 4);
+                        int blueUpper = (int)((RGB888To444(image.colorTable[image.imageData[index]]) & (1 << 3 - i)) >> 3 - i);
+                        int redLower = (int)((RGB888To444(image.colorTable[image.imageData[(image.imageData.Length / 2) + index]]) & (1 << 3 - i + 8)) >> 3 - i + 8);
+                        int greenLower = (int)((RGB888To444(image.colorTable[image.imageData[(image.imageData.Length / 2) + index]]) & (1 << 3 - i + 4)) >> 3 - i + 4);
+                        int blueLower = (int)((RGB888To444(image.colorTable[image.imageData[(image.imageData.Length / 2) + index]]) & (1 << 3 - i)) >> 3 - i);
+                        sb.Append((redLower << 5) + (greenLower << 4) + (blueLower << 3) + (redUpper << 2) + (greenUpper << 1) + blueUpper);
+                        sb.Append(',');
+
+                        ++pixelsSet;
+                    }
+                }
+                else
+                {
+                    for (int index = 0; index < image.imageData.Length / 6; index++)
+                    {
+                        if (index % 64 == 0)
+                            sb.Append('\n');
+                        int redUpper = (RGB8To4(image.imageData[index * 3 + 2]) & (1 << 3 - i)) >> 3 - i;
+                        int greenUpper = (RGB8To4(image.imageData[index * 3 + 1]) & (1 << 3 - i)) >> 3 - i;
+                        int blueUpper = (RGB8To4(image.imageData[index * 3]) & (1 << 3 - i)) >> 3 - i;
+                        int redLower = (RGB8To4(image.imageData[(image.imageData.Length / 2) + index * 3 + 2]) & (1 << 3 - i)) >> 3 - i;
+                        int greenLower = (RGB8To4(image.imageData[(image.imageData.Length / 2) + index * 3 + 1]) & (1 << 3 - i)) >> 3 - i;
+                        int blueLower = (RGB8To4(image.imageData[(image.imageData.Length / 2) + index * 3]) & (1 << 3 - i)) >> 3 - i;
+                        sb.Append((redLower << 5) + (greenLower << 4) + (blueLower << 3) + (redUpper << 2) + (greenUpper << 1) + blueUpper);
+                        sb.Append(',');
+
+                        ++pixelsSet;
+                    }
+                }
             }
+            pixelsSet /= 2;
+
+            sb.Remove(sb.Length - 1, 1);
+            sb.Append("\n\n};");
+
+            Console.WriteLine($"Read and converted {pixelsSet} pixels at {image.info.biWidth}x{image.info.biHeight}");
+
+            Console.WriteLine(sb.ToString());
         }
+
+        public static uint RGB888To444(uint color) => ((((color >> 16) & 255) * 31 / 255) << 8) + ((((color >> 8) & 255) * 31 / 255) << 4) + ((color & 255) * 31 / 255);
+        public static byte RGB8To4(byte color) => rgb8to4LUT[color & 255];
 
         public static void Die(string message)
         {

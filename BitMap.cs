@@ -66,7 +66,7 @@
             //read in color table
             if (info.biClrUsed == 0)
             {
-                if (info.biBitCount == 1 || info.biBitCount == 2 || info.biBitCount == 4)
+                if (info.biBitCount <= 8)
                 {
                     colorTable = new uint[((int)Math.Pow(2, info.biBitCount))];
                     for (int x = 0; x < ((int)Math.Pow(2, info.biBitCount)); x++)
