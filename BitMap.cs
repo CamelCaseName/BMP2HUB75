@@ -86,6 +86,7 @@
 
             if ((i + 1) == header.bfOffset) Console.WriteLine("Image headers read in correctly");
 
+            if (info.biSizeImage == 0) info.biSizeImage = (uint)(info.biWidth * info.biHeight * info.biBitCount / 8);
             imageData = new byte[info.biSizeImage];
             for (int t = 0; t < info.biSizeImage; t++)
             {
