@@ -2,7 +2,7 @@
   "profiles": {
     "BMP2HUB75": {
       "commandName": "Project",
-      "commandLineArgs": "\"F:\\Lenny\\Downloads\\ZeldaBOTW32x64.bmp\""
+      "commandLineArgs": "\"F:\\Lenny\\Documents\\DOOMTestSprites\\AnimLookLeft (Custom).bmp\""
     }
   }
 }
