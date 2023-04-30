@@ -31,9 +31,9 @@ namespace BMP2HUB75
             StringBuilder sb = new StringBuilder();
 
             //todo create initializer for 1 and 2 bit image buffer or more bit buffer using sram at some point
-            //todo do bit reduction using the percentage of image, so value between highest and lowest value in image so that most contrast and imageData is kept (if applicable)
+            
+            //todo add initializer and settings for padding on smalle rimages, and truncation on larger ones given the output size/mode
 
-            //**this is for 4 bit flash mode, so bibitcount >= 12**
             sb.Append("const unsigned char buffer[");
             sb.Append(image.info.biHeight * image.info.biWidth * maxColorIter / 2); //8 led per led struct
             sb.Append("] PROGMEM = { ");
@@ -57,7 +57,7 @@ namespace BMP2HUB75
                         int redLower = (int)((RGB888To444(image.colorTable[image.imageData[(image.imageData.Length / 2) + height * width - index]]) & (1 << maxColorDepth - i + 8)) >> maxColorDepth - i + 8);
                         int greenLower = (int)((RGB888To444(image.colorTable[image.imageData[(image.imageData.Length / 2) + height * width - index]]) & (1 << maxColorDepth - i + 4)) >> maxColorDepth - i + 4);
                         int blueLower = (int)((RGB888To444(image.colorTable[image.imageData[(image.imageData.Length / 2) + height * width - index]]) & (1 << maxColorDepth - i)) >> maxColorDepth - i);
-                        sb.Append((redLower << 5) + (greenLower << 4) + (blueLower << 3) + (redUpper << 2) + (greenUpper << 1) + blueUpper);
+                        sb.Append((redLower << 7) + (greenLower << 6) + (blueLower << 5) + (redUpper << 4) + (greenUpper << 3) + (blueUpper << 2));
                         sb.Append(',');
                         sb.Append(' ');
 
@@ -81,7 +81,7 @@ namespace BMP2HUB75
                         int redLower = (RGB8To4(image.imageData[(height * width + index % width) * 3 + 2]) & (1 << maxColorDepth - i)) >> maxColorDepth - i;
                         int greenLower = (RGB8To4(image.imageData[(height * width + index % width) * 3 + 1]) & (1 << maxColorDepth - i)) >> maxColorDepth - i;
                         int blueLower = (RGB8To4(image.imageData[(height * width + index % width) * 3]) & (1 << maxColorDepth - i)) >> maxColorDepth - i;
-                        sb.Append((redLower << 5) + (greenLower << 4) + (blueLower << 3) + (redUpper << 2) + (greenUpper << 1) + blueUpper);
+                        sb.Append((redLower << 7) + (greenLower << 6) + (blueLower << 5) + (redUpper << 4) + (greenUpper << 3) + (blueUpper << 2));
                         sb.Append(',');
                         sb.Append(' ');
 
