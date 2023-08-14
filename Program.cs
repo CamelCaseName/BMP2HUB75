@@ -75,12 +75,12 @@ namespace BMP2HUB75
                             sb.Append('\n');
                         if (index % width == 0)
                             --height;
-                        int redUpper = (RGB8To4(image.imageData[(image.imageData.Length / 2) + (height * width + index % width) * 3 + 2]) & (1 << maxColorDepth - i)) >> maxColorDepth - i;
+                        int redUpper = (RGB8To4(image.imageData[(image.imageData.Length / 2) + (height * width + index % width) * 3 ]) & (1 << maxColorDepth - i)) >> maxColorDepth - i;
                         int greenUpper = (RGB8To4(image.imageData[(image.imageData.Length / 2) + (height * width + index % width) * 3 + 1]) & (1 << maxColorDepth - i)) >> maxColorDepth - i;
-                        int blueUpper = (RGB8To4(image.imageData[(image.imageData.Length / 2) + (height * width + index % width) * 3]) & (1 << maxColorDepth - i)) >> maxColorDepth - i;
-                        int redLower = (RGB8To4(image.imageData[(height * width + index % width) * 3 + 2]) & (1 << maxColorDepth - i)) >> maxColorDepth - i;
+                        int blueUpper = (RGB8To4(image.imageData[(image.imageData.Length / 2) + (height * width + index % width) * 3 + 2]) & (1 << maxColorDepth - i)) >> maxColorDepth - i;
+                        int redLower = (RGB8To4(image.imageData[(height * width + index % width) * 3]) & (1 << maxColorDepth - i)) >> maxColorDepth - i;
                         int greenLower = (RGB8To4(image.imageData[(height * width + index % width) * 3 + 1]) & (1 << maxColorDepth - i)) >> maxColorDepth - i;
-                        int blueLower = (RGB8To4(image.imageData[(height * width + index % width) * 3]) & (1 << maxColorDepth - i)) >> maxColorDepth - i;
+                        int blueLower = (RGB8To4(image.imageData[(height * width + index % width) * 3 + 2]) & (1 << maxColorDepth - i)) >> maxColorDepth - i;
                         sb.Append((redLower << 7) + (greenLower << 6) + (blueLower << 5) + (redUpper << 4) + (greenUpper << 3) + (blueUpper << 2));
                         sb.Append(',');
                         sb.Append(' ');
@@ -100,7 +100,7 @@ namespace BMP2HUB75
             Console.WriteLine(sb.ToString());
         }
 
-        public static uint RGB888To444(uint color) => (uint)((rgb8to4LUT[(color >> 16) & 255] << 8) + (rgb8to4LUT[(color >> 8) & 255] << 4) + rgb8to4LUT[color & 255]);
+        public static uint RGB888To444(uint color) => (uint)((rgb8to4LUT[(color>>16) & 255] << 8) + (rgb8to4LUT[(color >> 8) & 255] << 4) + rgb8to4LUT[color & 255]);
         public static byte RGB8To4(byte color) => rgb8to4LUT[color & 255];
 
         public static void Die(string message)
