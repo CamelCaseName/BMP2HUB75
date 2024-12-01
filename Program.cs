@@ -57,7 +57,7 @@ namespace BMP2HUB75
                         int redLower = (int)((RGB888To444(image.colorTable[image.imageData[(image.imageData.Length / 2) + height * width - index]]) & (1 << maxColorDepth - i + 8)) >> maxColorDepth - i + 8);
                         int greenLower = (int)((RGB888To444(image.colorTable[image.imageData[(image.imageData.Length / 2) + height * width - index]]) & (1 << maxColorDepth - i + 4)) >> maxColorDepth - i + 4);
                         int blueLower = (int)((RGB888To444(image.colorTable[image.imageData[(image.imageData.Length / 2) + height * width - index]]) & (1 << maxColorDepth - i)) >> maxColorDepth - i);
-                        sb.Append((redLower << 7) + (greenLower << 6) + (blueLower << 5) + (redUpper << 4) + (greenUpper << 3) + (blueUpper << 2));
+                        sb.Append((redLower << 5) + (greenLower << 4) + (blueLower << 3) + (redUpper << 2) + (greenUpper << 1) + (blueUpper << 0));
                         sb.Append(',');
                         sb.Append(' ');
 
@@ -71,7 +71,7 @@ namespace BMP2HUB75
                 {
                     for (int index = 0; index < image.imageData.Length / 6; index++)
                     {
-                        if (index % 64 == 0)
+                        if (index % width == 0)
                             sb.Append('\n');
                         if (index % width == 0)
                             --height;
@@ -81,7 +81,7 @@ namespace BMP2HUB75
                         int redLower = (RGB8To4(image.imageData[(height * width + index % width) * 3]) & (1 << maxColorDepth - i)) >> maxColorDepth - i;
                         int greenLower = (RGB8To4(image.imageData[(height * width + index % width) * 3 + 1]) & (1 << maxColorDepth - i)) >> maxColorDepth - i;
                         int blueLower = (RGB8To4(image.imageData[(height * width + index % width) * 3 + 2]) & (1 << maxColorDepth - i)) >> maxColorDepth - i;
-                        sb.Append((redLower << 7) + (greenLower << 6) + (blueLower << 5) + (redUpper << 4) + (greenUpper << 3) + (blueUpper << 2));
+                        sb.Append((redLower << 5) + (greenLower << 4) + (blueLower << 3) + (redUpper << 2) + (greenUpper << 1) + (blueUpper << 0));
                         sb.Append(',');
                         sb.Append(' ');
 
